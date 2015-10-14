@@ -1,0 +1,8 @@
+setup.cfg
+*.kate-swp
+*.pyc
+setup.cfg
+build/
+dist/
+venv/
+hitchquickstart.egg-info/
