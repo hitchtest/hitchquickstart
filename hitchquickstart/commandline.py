@@ -3,10 +3,12 @@ from hitchquickstart.utils import log, warn, signals_trigger_exit
 from click import command, group, argument, option, prompt
 from jinja2 import FileSystemLoader, exceptions
 from jinja2.environment import Environment
+from subprocess import check_call
 from sys import exit, executable
 from os import path, walk, chdir
-import yaml
+import signal
 import click
+import yaml
 
 
 TEMPLATE_DIR = path.join(path.dirname(path.realpath(__file__)), "templates")
@@ -17,7 +19,6 @@ QUESTIONS_FILE = path.join(path.dirname(path.realpath(__file__)), "questions.yml
 
 TEMPLATES = [
     "all.settings",
-    "hitchreqs.txt",
     "engine.py",
     "system.packages",
     "README.rst",
@@ -46,6 +47,7 @@ def cli():
 
     # Ask questions and get answers
     answers = {}
+    dependencies = []
 
     for question_fulldict in questions:
         question_id = list(question_fulldict.keys())[0]
@@ -62,6 +64,7 @@ def cli():
 
             for dependency in question.get('dependencies', []):
                 answers[dependency] = True
+                dependencies.append(dependency)
 
             for subquestion_fulldict in question.get('subquestions', []):
                 subquestion_id = list(subquestion_fulldict.keys())[0]
@@ -78,10 +81,13 @@ def cli():
 
                     for dependency in subquestion.get('dependencies', []):
                         answers[dependency] = True
+                        dependencies.append(dependency)
+
 
     # Load templating environment
     env = Environment(trim_blocks=True)
     env.loader = FileSystemLoader(TEMPLATE_DIR)
+
 
     # Output files
     for template_name in TEMPLATES:
@@ -91,8 +97,17 @@ def cli():
                     env.get_template(template_name + ".jinja2").render(**answers)
                 )
         except Exception as e:
-            import IPython ; IPython.embed()
             exit(1)
+
+
+    # Install dependencies via hitch install
+
+    # If the user hits ctrl-C during an apt-get, let hitch install deal with it
+    signal.signal(signal.SIGINT, signal.SIG_IGN)
+
+    for dependency in dependencies:
+        check_call(["hitch", "install", dependency])
+
 
 def run():
     """Run hitch tests"""
