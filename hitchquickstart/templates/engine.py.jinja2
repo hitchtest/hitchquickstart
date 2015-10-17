@@ -21,7 +21,11 @@ import hitchsmtp
 {% if cron %}
 import hitchcron
 {% endif %}
+{% if cli %}
+import hitchcli
+{% endif %}
 import hitchtest
+
 
 # Get directory above this file
 PROJECT_DIRECTORY = path.abspath(path.join(path.dirname(__file__), '..'))
