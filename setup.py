@@ -13,7 +13,7 @@ def read(*parts):
     return codecs.open(os.path.join(os.path.abspath(os.path.dirname(__file__)), *parts), 'r').read()
 
 setup(name="hitchquickstart",
-      version="0.1.2",
+      version="0.1.3",
       description="Quick project generator for Hitch.",
       long_description=read('README.rst'),
       classifiers=[
