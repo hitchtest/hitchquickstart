@@ -71,6 +71,8 @@ class ExecutionEngine(hitchtest.ExecutionEngine):
 
 {% endif %}
 {% if postgres %}
+        # Docs : https://hitchtest.readthedocs.org/en/latest/plugins/hitchpostgres.html
+
         # Postgres user and database
         postgres_user = hitchpostgres.PostgresUser("example", "password")
 
@@ -83,10 +85,12 @@ class ExecutionEngine(hitchtest.ExecutionEngine):
 
 {% endif %}
 {% if smtp %}
+        # Docs : https://hitchtest.readthedocs.org/en/latest/plugins/hitchsmtp.html
         self.services['HitchSMTP'] = hitchsmtp.HitchSMTPService(port=10025)
 
 {% endif %}
 {% if redis %}
+        # Docs : https://hitchtest.readthedocs.org/en/latest/plugins/hitchredis.html
         self.services['Redis'] = hitchredis.RedisService(
             redis_package=redis_package,
             port=16379,
@@ -94,6 +98,7 @@ class ExecutionEngine(hitchtest.ExecutionEngine):
 
 {% endif %}
 {% if django %}
+        # Docs : https://hitchtest.readthedocs.org/en/latest/plugins/hitchpython.html
         self.services['Django'] = hitchpython.DjangoService(
             python=python_package.python,
             settings="remindme.settings",
@@ -104,6 +109,7 @@ class ExecutionEngine(hitchtest.ExecutionEngine):
 
 {% endif %}
 {% if celery %}
+        # Docs : https://hitchtest.readthedocs.org/en/latest/plugins/hitchpython.html
         self.services['Celery'] = hitchpython.CeleryService(
             python=python_package.python,
             app="remindme", loglevel="INFO",
@@ -114,6 +120,8 @@ class ExecutionEngine(hitchtest.ExecutionEngine):
 
 {% endif %}
 {% if webapp %}
+        # Docs : https://hitchtest.readthedocs.org/en/latest/plugins/hitchselenium.html
+
         self.services['Firefox'] = hitchselenium.SeleniumService(
             xvfb=self.settings.get("xvfb", False) or self.settings.get("quiet", False),
             no_libfaketime=True,
@@ -121,6 +129,8 @@ class ExecutionEngine(hitchtest.ExecutionEngine):
 
 {% endif %}
 {% if cron %}
+        # Docs : https://hitchtest.readthedocs.org/en/latest/plugins/hitchcron.html
+
         self.services['Cron'] = hitchcron.CronService(
             run=self.services['Django'].manage("trigger").command,
             every=1,
@@ -133,6 +143,7 @@ class ExecutionEngine(hitchtest.ExecutionEngine):
 
 {% endif %}
 {% if cli %}
+        # Docs : https://hitchtest.readthedocs.org/en/latest/plugins/hitchcli.html
         self.cli = hitchcli.CommandLineStepLibrary()
 
         self.cd = self.cli.cd
@@ -141,10 +152,14 @@ class ExecutionEngine(hitchtest.ExecutionEngine):
         self.send_control = self.cli.send_control
         self.send_line = self.cli.send_line
         self.finish = self.cli.finish
+
 {% endif %}
 {% if webapp %}
+        # Docs : https://hitchtest.readthedocs.org/en/latest/plugins/hitchselenium.html
+        self.driver = self.services['Firefox'].driver
+
         self.webapp = hitchselenium.SeleniumStepLibrary(
-            selenium_driver=self.driver,
+            selenium_webdriver=self.driver,
             wait_for_timeout=5,
         )
 
@@ -158,7 +173,6 @@ class ExecutionEngine(hitchtest.ExecutionEngine):
         screen_res = self.settings.get(
             "screen_resolution", {"width": 1024, "height": 768, }
         )
-        self.driver = self.services['Firefox'].driver
         self.driver.set_window_size(
             int(screen_res['width']), int(screen_res['height'])
         )
